@@ -42,10 +42,17 @@
         var canvas = document.getElementById('canvas');
 
         // Configuración de Pygbag
+        // Cargar el script principal
         var script = document.createElement('script');
         script.src = "naval_Papiweb.js";
         script.defer = true;
         document.body.appendChild(script);
+
+        // Cargar script de inicio de Pygbag
+        var pygbagScript = document.createElement('script');
+        pygbagScript.src = "naval_Papiweb.pyscript.js";
+        pygbagScript.defer = true;
+        document.body.appendChild(pygbagScript);
 
         // Variables globales requeridas por Pygbag
         var Module = {
