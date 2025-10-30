@@ -41,38 +41,8 @@
         var statusElement = document.getElementById('status');
         var canvas = document.getElementById('canvas');
 
-        // Configuración de Pygbag
-        // Cargar el script principal
-        var script = document.createElement('script');
-        script.src = "naval_Papiweb.js";
-        script.defer = true;
-        document.body.appendChild(script);
-
-        // Cargar script de inicio de Pygbag
-        var pygbagScript = document.createElement('script');
-        pygbagScript.src = "naval_Papiweb.pyscript.js";
-        pygbagScript.defer = true;
-        document.body.appendChild(pygbagScript);
-
-        // Variables globales requeridas por Pygbag
-        var Module = {
-            preRun: [],
-            postRun: [],
-            print: function(text) {
-                console.log(text);
-                if (text && text.includes('PYGAME CANVAS START')) {
-                    statusElement.style.display = 'none';
-                }
-            },
-            canvas: canvas,
-            setStatus: function(text) {
-                if (!text) {
-                    statusElement.style.display = 'none';
-                } else {
-                    statusElement.innerHTML = text;
-                }
-            },
-        };
+        // El index.html generado por pygbag ya incluye la configuración necesaria para cargar el juego desde el CDN.
+        // No es necesario cargar archivos JS locales manualmente.
     </script>
 </body>
 </html>
