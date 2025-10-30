@@ -35,9 +35,11 @@ jobs:
       - name: Build
         run: |
           mkdir -p build/web
-          cp index.html build/web/
+          mkdir -p templates
+          cp index.html templates/
           cp -r assets build/web/
-          python -m pygbag --build --app-name naval_Papiweb --html index.html naval_Papiweb.py
+          python -m http.server 8000 &
+          python -m pygbag --port 8000 --build --serve --app-name naval_Papiweb naval_Papiweb.py
           
       - name: Setup Pages
         uses: actions/configure-pages@v4
