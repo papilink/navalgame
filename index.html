@@ -4,19 +4,68 @@
     <title>Defensor Naval - Papiweb</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Juego Defensor Naval por Papiweb desarrollos informaticos">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <style>
-        body { margin: 0; background-color: black; }
-        #canvas { width: 100vw; height: 100vh; display: block; }
+        body { 
+            margin: 0;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        #status {
+            color: white;
+            font-family: Arial, sans-serif;
+            margin-bottom: 20px;
+        }
+        #canvas {
+            border: 1px solid #333;
+        }
+        #loading {
+            color: white;
+            font-size: 1.2em;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
     </style>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
-    <script src="main.js" defer></script>
+    <div id="status">Cargando...</div>
+    <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
     <script>
-        window.addEventListener('load', () => {
-            const canvas = document.getElementById('canvas');
-            canvas.focus();
-        });
+        var statusElement = document.getElementById('status');
+        var canvas = document.getElementById('canvas');
+
+        // Configuración de Pygbag
+        var script = document.createElement('script');
+        script.src = "naval_Papiweb.js";
+        script.defer = true;
+        document.body.appendChild(script);
+
+        // Variables globales requeridas por Pygbag
+        var Module = {
+            preRun: [],
+            postRun: [],
+            print: function(text) {
+                console.log(text);
+                if (text && text.includes('PYGAME CANVAS START')) {
+                    statusElement.style.display = 'none';
+                }
+            },
+            canvas: canvas,
+            setStatus: function(text) {
+                if (!text) {
+                    statusElement.style.display = 'none';
+                } else {
+                    statusElement.innerHTML = text;
+                }
+            },
+        };
     </script>
 </body>
 </html>
