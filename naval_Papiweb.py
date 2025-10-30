@@ -311,9 +311,9 @@ class Juego:
         try:
             self.sonido_explosion = pygame.mixer.Sound(os.path.join(self.directorio_assets, "fall.mp3"))
             self.sonido_disparo = pygame.mixer.Sound(os.path.join(self.directorio_assets, "gun.mp3"))
-            # Lista de partes de la música épica
-            self.partes_epic = [os.path.join(self.directorio_assets, f"epic_part{i}.mp3") for i in range(26)]
-            self.musica_presentacion = self.partes_epic[0]  # Usamos la primera parte
+            # Lista de partes cortas de la música épica
+            self.partes_epic = [os.path.join(self.directorio_assets, f"epic_short_part{i}.mp3") for i in range(5)]
+            self.musica_presentacion = self.partes_epic[0]  # Usamos la primera parte corta
             self.musica_theme = os.path.join(self.directorio_assets, "theme.mp3")
             self.musica_dance = os.path.join(self.directorio_assets, "dance.mp3")
             self.musica_score = os.path.join(self.directorio_assets, "score.mp3")
