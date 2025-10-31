@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Defensor Naval - Papiweb</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Juego Defensor Naval por Papiweb desarrollos informaticos">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        body { 
+            margin: 0;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        #status {
+            color: white;
+            font-family: Arial, sans-serif;
+            margin-bottom: 20px;
+        }
+        #canvas {
+            border: 1px solid #333;
+        }
+        #loading {
+            color: white;
+            font-size: 1.2em;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body>
+    <div id="status">Cargando...</div>
+    <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+    <script>
+        var statusElement = document.getElementById('status');
+        var canvas = document.getElementById('canvas');
+    </script>
+    <!-- Script de arranque de pygbag para cargar el juego desde el CDN -->
+    <script src="https://pygame-web.github.io/archives/0.9/pygbag_boot.js"></script>
+</body>
+</html>

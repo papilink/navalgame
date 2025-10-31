@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Defensor Naval - Papiweb</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Juego Defensor Naval por Papiweb desarrollos informaticos">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        body { 
+            margin: 0;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        #status {
+            color: white;
+            font-family: Arial, sans-serif;
+            margin-bottom: 20px;
+        }
+        #canvas {
+            border: 1px solid #333;
+        }
+        #loading {
+            color: white;
+            font-size: 1.2em;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        /* Hide the status div when game is loaded */
+        .loaded #status {
+            display: none;
+        }
+    </style>
+    <script src="naval_Papiweb.js" defer></script>
+</head>
+<body>
+    <div id="status">Cargando...</div>
+    <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+    <script type="text/javascript">
+        var statusElement = document.getElementById('status');
+        var canvas = document.getElementById('canvas');
+        
+        var Module = {
+            preRun: [],
+            postRun: [],
+            print: function(text) {
+                console.log(text);
+                if (text && text.includes('PYGAME CANVAS START')) {
+                    document.body.classList.add('loaded');
+                }
+            },
+            canvas: canvas,
+            setStatus: function(text) {
+                if (!text) {
+                    document.body.classList.add('loaded');
+                } else {
+                    statusElement.innerHTML = text;
+                }
+            },
+            onRuntimeInitialized: function() {
+                console.log('WASM Runtime Initialized');
+            }
+        };
+    </script>
+</body>
+</html>

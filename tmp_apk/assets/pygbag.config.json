@@ -1,0 +1,11 @@
+{
+    "app_name": "naval_Papiweb",
+    "templates_path": "templates",
+    "assets_path": "assets",
+    "python_version": "3.10",
+    "title": "Defensor Naval - Papiweb",
+    "description": "Juego Defensor Naval por Papiweb desarrollos informaticos",
+    "authors": ["Papiweb"],
+    "version": "1.0.0",
+    "build_path": "build/web"
+}
