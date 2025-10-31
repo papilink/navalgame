@@ -293,7 +293,13 @@ class Enemigo(pygame.sprite.Sprite):
 class Juego:
     def __init__(self):
         pygame.init()
-        pygame.mixer.init()
+        # Inicializar mixer con tolerancia a fallos (en navegadores/pygbag puede no estar disponible)
+        try:
+            pygame.mixer.init()
+            self.mixer_ok = True
+        except Exception as e:
+            print(f"Warning: pygame.mixer.init() failed: {e}")
+            self.mixer_ok = False
         self.pantalla = pygame.display.set_mode((ANCHO_PANTALLA, ALTO_PANTALLA))
         
         ### MARCA: Añadida al título de la ventana ###
@@ -305,20 +311,42 @@ class Juego:
         self.directorio_assets = os.path.join(self.directorio_juego, "assets")
 
         # Cargar sonidos
-        try:
-            self.sonido_explosion = pygame.mixer.Sound(os.path.join(self.directorio_assets, "fall.mp3"))
-            self.sonido_disparo = pygame.mixer.Sound(os.path.join(self.directorio_assets, "gun.mp3"))
-            self.musica_presentacion = os.path.join(self.directorio_assets, "epic.mp3")
-            self.musica_theme = os.path.join(self.directorio_assets, "theme.mp3")
-            self.musica_dance = os.path.join(self.directorio_assets, "dance.mp3")
-            self.musica_score = os.path.join(self.directorio_assets, "score.mp3")
-            self.musica_actual = self.musica_theme
-        except pygame.error as e:
-            print(f"Error al cargar audio: {e}")
+        def find_asset(base, name_without_ext):
+            """Buscar un archivo de audio con extensiones comunes y devolver la ruta o None."""
+            for ext in (".ogg", ".mp3", ".wav"):
+                path = os.path.join(base, name_without_ext + ext)
+                if os.path.exists(path):
+                    return path
+            return None
+
+        if self.mixer_ok:
+            try:
+                sonido_fall = find_asset(self.directorio_assets, "fall")
+                sonido_gun = find_asset(self.directorio_assets, "gun")
+                self.sonido_explosion = pygame.mixer.Sound(sonido_fall) if sonido_fall else None
+                self.sonido_disparo = pygame.mixer.Sound(sonido_gun) if sonido_gun else None
+                self.musica_presentacion = find_asset(self.directorio_assets, "epic")
+                self.musica_theme = find_asset(self.directorio_assets, "theme")
+                self.musica_dance = find_asset(self.directorio_assets, "dance")
+                self.musica_score = find_asset(self.directorio_assets, "score")
+                self.musica_actual = self.musica_theme
+            except Exception as e:
+                print(f"Error al cargar audio: {e}")
+                self.sonido_explosion = None
+                self.sonido_disparo = None
+                self.musica_presentacion = None
+                self.musica_theme = None
+                self.musica_dance = None
+                self.musica_score = None
+                self.musica_actual = None
+        else:
             self.sonido_explosion = None
             self.sonido_disparo = None
             self.musica_presentacion = None
             self.musica_theme = None
+            self.musica_dance = None
+            self.musica_score = None
+            self.musica_actual = None
 
         # Cargar assets de la presentación
         try:
@@ -396,10 +424,13 @@ class Juego:
         self.jugando = True
 
     def pantalla_presentacion(self):
-        if self.musica_presentacion:
-            pygame.mixer.music.load(self.musica_presentacion)
-            pygame.mixer.music.play(-1)
-            pygame.mixer.music.set_volume(0.7)
+        if self.musica_presentacion and getattr(self, 'mixer_ok', False):
+            try:
+                pygame.mixer.music.load(self.musica_presentacion)
+                pygame.mixer.music.play(-1)
+                pygame.mixer.music.set_volume(0.7)
+            except Exception as e:
+                print(f"Warning: no se pudo reproducir musica de presentación: {e}")
 
         indice_imagen = 0
         ultimo_cambio = pygame.time.get_ticks()
@@ -439,11 +470,15 @@ class Juego:
             pygame.display.flip()
             self.reloj.tick(FPS)
 
-        pygame.mixer.music.stop()
-        if self.musica_theme:
-            pygame.mixer.music.load(self.musica_theme)
-            pygame.mixer.music.play(-1)
-            pygame.mixer.music.set_volume(0.5)
+        if getattr(self, 'mixer_ok', False):
+            try:
+                pygame.mixer.music.stop()
+                if self.musica_theme:
+                    pygame.mixer.music.load(self.musica_theme)
+                    pygame.mixer.music.play(-1)
+                    pygame.mixer.music.set_volume(0.5)
+            except Exception as e:
+                print(f"Warning: no se pudo reproducir musica de juego: {e}")
 
     def ejecutar(self):
         self.pantalla_presentacion()
@@ -456,15 +491,20 @@ class Juego:
         self.pantalla_game_over()
 
     def cambiar_musica(self):
-        pygame.mixer.music.stop()
+        # Cambiar música solo si el mixer está disponible
+        if not getattr(self, 'mixer_ok', False):
+            return
         try:
+            pygame.mixer.music.stop()
             if self.musica_actual == self.musica_theme:
-                pygame.mixer.music.load(self.musica_dance)
-                self.musica_actual = self.musica_dance
+                if self.musica_dance:
+                    pygame.mixer.music.load(self.musica_dance)
+                    self.musica_actual = self.musica_dance
             else:
-                pygame.mixer.music.load(self.musica_theme)
-                self.musica_actual = self.musica_theme
-            
+                if self.musica_theme:
+                    pygame.mixer.music.load(self.musica_theme)
+                    self.musica_actual = self.musica_theme
+
             pygame.mixer.music.play(-1)
             self.volumen_inicial_transicion = 0.0
             self.volumen_final_transicion = self.volumen_objetivo
@@ -477,10 +517,14 @@ class Juego:
     def manejar_transicion_musica(self):
         if not self.transicionando_musica:
             return
-        
+        # Si no hay mixer, cancelar la transición
+        if not getattr(self, 'mixer_ok', False):
+            self.transicionando_musica = False
+            return
+
         ahora = pygame.time.get_ticks()
         tiempo_pasado = ahora - self.tiempo_inicio_transicion
-        
+
         if tiempo_pasado >= self.tiempo_transicion:
             pygame.mixer.music.set_volume(self.volumen_final_transicion)
             self.transicionando_musica = False
@@ -619,10 +663,13 @@ class Juego:
             json.dump(self.highscores, f, indent=4)
 
     def pantalla_game_over(self):
-        if hasattr(self, 'musica_score') and self.musica_score:
-            pygame.mixer.music.load(self.musica_score)
-            pygame.mixer.music.play(-1)
-            pygame.mixer.music.set_volume(0.6)
+        if getattr(self, 'mixer_ok', False) and hasattr(self, 'musica_score') and self.musica_score:
+            try:
+                pygame.mixer.music.load(self.musica_score)
+                pygame.mixer.music.play(-1)
+                pygame.mixer.music.set_volume(0.6)
+            except Exception as e:
+                print(f"Warning: no se pudo reproducir musica de game over: {e}")
 
         font_grande = pygame.font.Font(None, 60)
         font_mediana = pygame.font.Font(None, 36)
